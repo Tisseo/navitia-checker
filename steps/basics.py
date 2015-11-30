@@ -1,6 +1,7 @@
 from behave import given, when, then
 import requests
 import json
+import os, sys
 import date_lib
 
 def call_navitia(environnement, coverage, service, api_key, parameters):
@@ -11,7 +12,7 @@ def call_navitia(environnement, coverage, service, api_key, parameters):
 def step_impl(context, test_coverage):
     context.coverage = test_coverage
     params = json.load(open('steps/params.json'))
-    test_env = context.config.userdata.get("environnement", "ppd") #pour passer ce param : behave fr_idf.feature -D environnement=production
+    test_env = context.config.userdata.get("environnement", "ppd") #pour passer ce param : behave chemin/vers/mon_test.feature -D environnement=production
 
     if test_env == "sim" or test_env == "simulation":
         context.base_url = params['environnements']['Simulation']['url'] + "coverage/"
@@ -24,6 +25,35 @@ def step_impl(context, test_coverage):
         context.api_key = params['environnements']['PreProd']['key']
     else :
         assert False, "vous n'avez pas passé d'environnement de test valide : " + test_env
+
+@given(u'je teste un coverage privé')
+def step_impl(context):
+    """
+    Les fichiers features privés sont hébergés dans un autre répertoire et synchronisés avec le répertoire courant.
+    Ce test vérifie qu'ils sont bien synchronisés.
+    """
+    destination = os.path.join(os.getcwd(), "private_features")
+
+    #récupération de l'adresse du répo privé
+    sys.path.append(os.path.join(os.getcwd(), "steps"))
+    import params as private_data
+    source = private_data.datascript_features_repo
+
+    nom_fichier_feature = ""
+    for an_arg in sys.argv :
+        if "private_features" in an_arg :
+            path, filename = os.path.split(an_arg)
+            nom_fichier_feature = filename
+
+    if nom_fichier_feature == "":
+        assert False, "je n'ai pas réussi à comparer le fichier contenu dans le répertoire navitia-checker avec celui contenu dans le répertoire source"
+
+    #comparaison des deux fichiers
+    import hashlib
+    hash_source = hashlib.sha1(open(os.path.join(source, nom_fichier_feature), 'rb').read()).hexdigest()
+    hash_dest = hashlib.sha1(open(os.path.join(destination, nom_fichier_feature), 'rb').read()).hexdigest()
+    if hash_dest != hash_source :
+        assert False, "le fichier contenu dans le répertoire est différent de celui contenu dans le répertoire source. Il faut les synchroniser avant de lancer les tests"
 
 @when(u'j\'interroge le coverage')
 def step_impl(context):
