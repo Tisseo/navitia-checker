@@ -12,7 +12,7 @@ def call_navitia(environnement, coverage, service, api_key, parameters):
 def step_impl(context, test_coverage):
     context.coverage = test_coverage
     params = json.load(open('steps/params.json'))
-    test_env = context.config.userdata.get("environnement", "ppd") #pour passer ce param : behave chemin/vers/mon_test.feature -D environnement=production
+    test_env = context.config.userdata.get("environnement", "ko") #pour passer ce param : behave chemin/vers/mon_test.feature -D environnement=prod
 
     if test_env == "sim" or test_env == "simulation":
         context.base_url = params['environnements']['Simulation']['url'] + "coverage/"
