@@ -23,6 +23,12 @@ def step_impl(context, test_coverage):
     elif test_env == "preprod" or test_env == "ppd" or test_env == "pre":
         context.base_url = params['environnements']['PreProd']['url'] + "coverage/"
         context.api_key = params['environnements']['PreProd']['key']
+    elif test_env == "int" or test_env == "internal":
+        context.base_url = params['environnements']['Internal']['url'] + "coverage/"
+        context.api_key = params['environnements']['Internal']['key']
+    elif test_env == "custo" or test_env == "customer":
+        context.base_url = params['environnements']['Customer']['url'] + "coverage/"
+        context.api_key = params['environnements']['Customer']['key']        
     else :
         assert False, "vous n'avez pas passé d'environnement de test valide : " + test_env
 
