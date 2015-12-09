@@ -1,0 +1,12 @@
+{
+    "environnements": {
+		"api.navitia.io": {
+			"url" : "http://api.navitia.io/v1/",
+			"key" : "get-your-own-api-key-on-navitia.io"
+		},
+		"mine": {
+			"url" : "localhost/navitia/v1",
+			"key" : ""
+		}
+	}
+}
