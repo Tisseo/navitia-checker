@@ -75,8 +75,12 @@ def step_impl(context):
 
 @then(u'on doit m\'indiquer un total de "{expected_nb_elem}" éléments')
 def step_impl(context, expected_nb_elem):
-    nb_elem = int(context.lines['pagination']['total_result'])
-    assert (nb_elem == int(expected_nb_elem)), "Nb d'éléments attendus " +expected_nb_elem+ " - Nb d'éléments obtenus " + str(nb_elem)
+    print("L'URL d'appel est : " + context.url)
+    try:
+        nb_elem = int(context.lines['pagination']['total_result'])
+        assert (nb_elem == int(expected_nb_elem)), "Nb d'éléments attendus " +expected_nb_elem+ " - Nb d'éléments obtenus " + str(nb_elem)
+    except KeyError:
+        assert (False), "Pas d'éléments associés"
 
 @when(u'je demande les réseaux')
 def step_impl(context):
@@ -210,6 +214,17 @@ def step_impl(context, expected_sections):
     for a_journey in journeys :
         print (a_journey)
     assert (expected_sections in journeys), "La suite de sections attendue n'a pas été trouvée"
+
+@then(u'on ne doit pas me proposer de solution')
+def step_impl(context):
+    print (context.journey_url) #pour le débug
+    #extraction du détail des sections
+    journeys = []
+    try:
+        nb_elem = len(context.journey_result['journeys'])
+    except KeyError:
+        nb_elem = 0
+    assert (nb_elem == 0), "Il y a {} résultats d'itinéraire".format(str(nb_elem))
 
 @given(u'je cherche des POIs à "{distance}" m du lieu "{places_query}"')
 def step_impl(context, distance, places_query):
