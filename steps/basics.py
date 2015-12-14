@@ -28,7 +28,7 @@ def step_impl(context, test_coverage):
         context.api_key = params['environnements']['Internal']['key']
     elif test_env == "custo" or test_env == "customer":
         context.base_url = params['environnements']['Customer']['url'] + "coverage/"
-        context.api_key = params['environnements']['Customer']['key']        
+        context.api_key = params['environnements']['Customer']['key']
     else :
         assert False, "vous n'avez pas passé d'environnement de test valide : " + test_env
 
@@ -264,3 +264,35 @@ def step_impl(context):
     if pb_de_mode :
         print (context.url)
         assert False, "il y a au moins un mode physique non normalisé"
+
+@given(u'je consulte la fiche horaire du parcours "{route_id}" pour le prochain "{weekday}"')
+def step_impl(context, route_id, weekday):
+    datetime = date_lib.day_to_use(weekday, "04h00")
+    nav_call =  call_navitia(context.base_url, context.coverage, "routes/{}/route_schedules".format(route_id), context.api_key, {'from_datetime':datetime})
+    context.route_schedules = nav_call.json()
+    context.url = nav_call.url
+
+@then(u'on doit m\'indiquer que les horaires de l\'arrêt "{stop_point_id}" sont parfois estimés')
+def step_impl(context, stop_point_id):
+    print("L'URL d'appel est : " + context.url)
+    if "route_schedules" in context.route_schedules :
+        found_stop_point = False
+        for a_row in context.route_schedules['route_schedules'][0]['table']['rows'] :
+            arret_id = a_row['stop_point']['id']
+            print(arret_id)
+            if arret_id == stop_point_id :
+                found_stop_point = True
+                additional_informations = [elem['additional_informations'] for elem in a_row['date_times'] ]
+                found_estimated = False
+                for elem in additional_informations :
+                    if 'date_time_estimated' in elem :
+                        found_estimated = True
+                        print ("c'est ok, j'ai trouvé un horaire de cet arrêt qui est estimé")
+                        break
+                    if found_estimated == False :
+                        assert False, "aucun horaire de cet arrêt n'est estimé"
+                break
+        if found_stop_point == False :
+            assert False, "l'arrêt indiqué n'est pas présent dans cette grille horaire de parcours"
+    else :
+        assert False, "pas d'horaires !"
