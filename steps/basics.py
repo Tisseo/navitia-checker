@@ -17,18 +17,23 @@ def step_impl(context, test_coverage):
     if test_env == "sim" or test_env == "simulation":
         context.base_url = params['environnements']['Simulation']['url'] + "coverage/"
         context.api_key = params['environnements']['Simulation']['key']
+        context.env = "Simulation"
     elif test_env == "prod":
         context.base_url = params['environnements']['api.navitia.io']['url'] + "coverage/"
         context.api_key = params['environnements']['api.navitia.io']['key']
+        context.env = "api.navitia.io"
     elif test_env == "preprod" or test_env == "ppd" or test_env == "pre":
         context.base_url = params['environnements']['PreProd']['url'] + "coverage/"
         context.api_key = params['environnements']['PreProd']['key']
+        context.env = "PreProd"
     elif test_env == "int" or test_env == "internal":
         context.base_url = params['environnements']['Internal']['url'] + "coverage/"
         context.api_key = params['environnements']['Internal']['key']
+        context.env = "Internal"
     elif test_env == "custo" or test_env == "customer":
         context.base_url = params['environnements']['Customer']['url'] + "coverage/"
         context.api_key = params['environnements']['Customer']['key']
+        context.env = "Customer"
     else :
         assert False, "vous n'avez pas passé d'environnement de test valide : " + test_env
 
@@ -156,9 +161,17 @@ def step_impl(context):
     context.journey_result = journey_call.json()
     context.journey_url = journey_call.url
 
+    nav_explo_url = "navitia-explorer/journey.html?ws_name={}&coverage={}".format(context.env ,context.coverage) 
+    nav_explo_url += "&from_text={}&from={}".format(from_text, from_places)
+    nav_explo_url += "&to_text={}&to={}".format(to_text, to_places)
+    date = "{}/{}/{}".format(datetime[6:8], datetime[4:6],datetime[0:4] )
+    nav_explo_url += "&date={}&time={}&datetime_represents={}".format(date, heure, datetime_represent)
+    context.nav_explo = nav_explo_url
+
 @then(u'on doit me proposer la suite de sections suivante : "{expected_sections}"')
 def step_impl(context, expected_sections):
     print (context.journey_url) #pour le débug
+    print (context.nav_explo)
     #extraction du détail des sections
     journeys = []
     for a_journey in context.journey_result['journeys']:
