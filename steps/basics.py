@@ -17,18 +17,23 @@ def step_impl(context, test_coverage):
     if test_env == "sim" or test_env == "simulation":
         context.base_url = params['environnements']['Simulation']['url'] + "coverage/"
         context.api_key = params['environnements']['Simulation']['key']
+        context.env = "Simulation"
     elif test_env == "prod":
         context.base_url = params['environnements']['api.navitia.io']['url'] + "coverage/"
         context.api_key = params['environnements']['api.navitia.io']['key']
+        context.env = "api.navitia.io"
     elif test_env == "preprod" or test_env == "ppd" or test_env == "pre":
         context.base_url = params['environnements']['PreProd']['url'] + "coverage/"
         context.api_key = params['environnements']['PreProd']['key']
+        context.env = "PreProd"
     elif test_env == "int" or test_env == "internal":
         context.base_url = params['environnements']['Internal']['url'] + "coverage/"
         context.api_key = params['environnements']['Internal']['key']
+        context.env = "Internal"
     elif test_env == "custo" or test_env == "customer":
         context.base_url = params['environnements']['Customer']['url'] + "coverage/"
         context.api_key = params['environnements']['Customer']['key']
+        context.env = "Customer"
     else :
         assert False, "vous n'avez pas passé d'environnement de test valide : " + test_env
 
@@ -156,36 +161,17 @@ def step_impl(context):
     context.journey_result = journey_call.json()
     context.journey_url = journey_call.url
 
-
-
-@then(u'un des itinéraires proposés emprunte les sections suivantes ') #deprecated _ do not use ! à supprimer ?
-def step_impl(context):
-    print (context.journey_url) #pour le débug
-    #extraction du détail des sections
-    sections = []
-    for a_journey in context.journey_result['journeys']:
-        for a_section in a_journey['sections']:
-            section_detail = {'type' : a_section['type']}
-            if a_section['type'] == "public_transport":
-                section_detail['mode'] = a_section['display_informations']['commercial_mode']
-                section_detail['code'] = a_section['display_informations']['code']
-                section_detail['from'] = a_section['from']['name']
-                section_detail['to'] = a_section['to']['name']
-            sections.append(section_detail)
-
-    #comparaison avec l'attendu
-    nb_sections_to_test = len([row['from'] for row in context.table])
-    for row in context.table:
-        expected_section = ({'from' : row['from'], 'to' : row['to'], 'mode' : row['mode'], 'code' : row['code'], 'type' : 'public_transport'})
-        print ('section attendue :')
-        print (expected_section)
-        print ('sections trouvées :')
-        print (sections)
-        assert (expected_section in sections), "La section attendue n'a pas été trouvée"
+    nav_explo_url = "navitia-explorer/journey.html?ws_name={}&coverage={}".format(context.env ,context.coverage)
+    nav_explo_url += "&from_text={}&from={}".format(from_text, from_places)
+    nav_explo_url += "&to_text={}&to={}".format(to_text, to_places)
+    date = "{}/{}/{}".format(datetime[6:8], datetime[4:6],datetime[0:4] )
+    nav_explo_url += "&date={}&time={}&datetime_represents={}".format(date, heure, datetime_represent)
+    context.nav_explo = nav_explo_url
 
 @then(u'on doit me proposer la suite de sections suivante : "{expected_sections}"')
 def step_impl(context, expected_sections):
     print (context.journey_url) #pour le débug
+    print (context.nav_explo)
     #extraction du détail des sections
     journeys = []
     for a_journey in context.journey_result['journeys']:
@@ -235,10 +221,12 @@ def step_impl(context, distance, places_query):
     around_call = call_navitia(context.base_url, context.coverage, "places/{}/places_nearby".format(location), context.api_key, {'distance' : distance, "count" : "25", "type[]":"poi"})
     context.around_result = around_call.json()
     context.around_url = around_call.url
+    context.nav_explo = "navitia-explorer/places_nearby.html?ws_name={}&coverage={}&point_name={}&point_id={}&distance={}".format(context.env ,context.coverage, places_query, location, distance)
     around_call.json()['places_nearby'] # a-t-on des infos exploitables dans le retour navitia ?
 
 @then(u'on doit me proposer au moins un POI de type "{poi_type_name}"')
 def step_impl(context, poi_type_name):
+    print(context.nav_explo)
     poi_types = [ elem['poi']['poi_type']['name'] for elem in context.around_result['places_nearby'] ]
     print ("Des POIs des types suivants ont été trouvés à proximité : {}".format(set(poi_types)))
     assert (poi_type_name in poi_types), "Aucun POI de ce type n'a été trouvé à proximité"
@@ -248,9 +236,11 @@ def step_impl(context):
     nav_call =  call_navitia(context.base_url, context.coverage, "physical_modes", context.api_key, {'count':50})
     context.physical_modes = nav_call.json()
     context.url = nav_call.url
+    context.nav_explo = "navitia-explorer/ptref.html?ws_name={}&coverage={}&uri=%2Fphysical_modes%2F".format(context.env ,context.coverage)
 
 @then(u'tous les modes retournés me sont connus')
 def step_impl(context):
+    print(context.nav_explo)
     expected_physical_modes = ["physical_mode:Air", "physical_mode:Boat", "physical_mode:Bus", "physical_mode:BusRapidTransit", "physical_mode:Coach", "physical_mode:Ferry", "physical_mode:Funicular",
         "physical_mode:LocalTrain", "physical_mode:LongDistanceTrain", "physical_mode:Metro", "physical_mode:RapidTransit", "physical_mode:Shuttle",  "physical_mode:Taxi", "physical_mode:Train",
         "physical_mode:Tramway", "physical_mode:Bike", "physical_mode:BikeSharingService", "physical_mode:CheckOut", "physical_mode:CheckIn", "physical_mode:Car",
