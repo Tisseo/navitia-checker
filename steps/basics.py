@@ -161,7 +161,7 @@ def step_impl(context):
     context.journey_result = journey_call.json()
     context.journey_url = journey_call.url
 
-    nav_explo_url = "navitia-explorer/journey.html?ws_name={}&coverage={}".format(context.env ,context.coverage) 
+    nav_explo_url = "navitia-explorer/journey.html?ws_name={}&coverage={}".format(context.env ,context.coverage)
     nav_explo_url += "&from_text={}&from={}".format(from_text, from_places)
     nav_explo_url += "&to_text={}&to={}".format(to_text, to_places)
     date = "{}/{}/{}".format(datetime[6:8], datetime[4:6],datetime[0:4] )
@@ -221,10 +221,12 @@ def step_impl(context, distance, places_query):
     around_call = call_navitia(context.base_url, context.coverage, "places/{}/places_nearby".format(location), context.api_key, {'distance' : distance, "count" : "25", "type[]":"poi"})
     context.around_result = around_call.json()
     context.around_url = around_call.url
+    context.nav_explo = "navitia-explorer/places_nearby.html?ws_name={}&coverage={}&point_name={}&point_id={}&distance={}".format(context.env ,context.coverage, places_query, location, distance)
     around_call.json()['places_nearby'] # a-t-on des infos exploitables dans le retour navitia ?
 
 @then(u'on doit me proposer au moins un POI de type "{poi_type_name}"')
 def step_impl(context, poi_type_name):
+    print(context.nav_explo)
     poi_types = [ elem['poi']['poi_type']['name'] for elem in context.around_result['places_nearby'] ]
     print ("Des POIs des types suivants ont été trouvés à proximité : {}".format(set(poi_types)))
     assert (poi_type_name in poi_types), "Aucun POI de ce type n'a été trouvé à proximité"
@@ -234,9 +236,11 @@ def step_impl(context):
     nav_call =  call_navitia(context.base_url, context.coverage, "physical_modes", context.api_key, {'count':50})
     context.physical_modes = nav_call.json()
     context.url = nav_call.url
+    context.nav_explo = "navitia-explorer/ptref.html?ws_name={}&coverage={}&uri=%2Fphysical_modes%2F".format(context.env ,context.coverage)
 
 @then(u'tous les modes retournés me sont connus')
 def step_impl(context):
+    print(context.nav_explo)
     expected_physical_modes = ["physical_mode:Air", "physical_mode:Boat", "physical_mode:Bus", "physical_mode:BusRapidTransit", "physical_mode:Coach", "physical_mode:Ferry", "physical_mode:Funicular",
         "physical_mode:LocalTrain", "physical_mode:LongDistanceTrain", "physical_mode:Metro", "physical_mode:RapidTransit", "physical_mode:Shuttle",  "physical_mode:Taxi", "physical_mode:Train",
         "physical_mode:Tramway", "physical_mode:Bike", "physical_mode:BikeSharingService", "physical_mode:CheckOut", "physical_mode:CheckIn", "physical_mode:Car",
