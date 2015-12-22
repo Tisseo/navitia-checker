@@ -156,33 +156,6 @@ def step_impl(context):
     context.journey_result = journey_call.json()
     context.journey_url = journey_call.url
 
-
-
-@then(u'un des itinéraires proposés emprunte les sections suivantes ') #deprecated _ do not use ! à supprimer ?
-def step_impl(context):
-    print (context.journey_url) #pour le débug
-    #extraction du détail des sections
-    sections = []
-    for a_journey in context.journey_result['journeys']:
-        for a_section in a_journey['sections']:
-            section_detail = {'type' : a_section['type']}
-            if a_section['type'] == "public_transport":
-                section_detail['mode'] = a_section['display_informations']['commercial_mode']
-                section_detail['code'] = a_section['display_informations']['code']
-                section_detail['from'] = a_section['from']['name']
-                section_detail['to'] = a_section['to']['name']
-            sections.append(section_detail)
-
-    #comparaison avec l'attendu
-    nb_sections_to_test = len([row['from'] for row in context.table])
-    for row in context.table:
-        expected_section = ({'from' : row['from'], 'to' : row['to'], 'mode' : row['mode'], 'code' : row['code'], 'type' : 'public_transport'})
-        print ('section attendue :')
-        print (expected_section)
-        print ('sections trouvées :')
-        print (sections)
-        assert (expected_section in sections), "La section attendue n'a pas été trouvée"
-
 @then(u'on doit me proposer la suite de sections suivante : "{expected_sections}"')
 def step_impl(context, expected_sections):
     print (context.journey_url) #pour le débug
