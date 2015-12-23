@@ -24,10 +24,9 @@ Scenario: Nom des parcours du réseau Stigo
 Scenario: Normalisation des modes physiques
     When  je demande les modes physiques
     Then  tous les modes retournés me sont connus
-    
+
 Scenario: Calcul d'itinéraire (OPTILE inside)
     Given je calcule un itinéraire avec les paramètres suivants :
         | from                                 | to                  |datetime_represent | jour  | heure |
-        | rue Louise Chenu Boissy Saint Léger  | Porte de Charenton  | Partir après      | Mardi | 8h30 |
+        | rue Louise Chenu Boissy Saint Léger  | Porte de Charenton  | Partir après      | Mardi | 08h30 |
     Then on doit me proposer la suite de sections suivante : "Boissy RER (Boissy-Saint-Léger) ==[ Bus 23 - Plateau de Brie ]==> Pointe du Lac (Créteil) ==[ Metro 8 - METRO ]==> Porte de Charenton (Paris) "
-

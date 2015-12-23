@@ -1,5 +1,3 @@
-
-
 import datetime
 
 def weekday_to_int(weekday):
@@ -20,21 +18,22 @@ def weekday_to_int(weekday):
     else :
         return 0
 
-def next_weekday(d, weekday_int):
+def next_weekday(d, weekday):
     """
-    d est une date (datetime)
-    weekday_int : 0 = lundi, 1 = mardi, etc
-    exemple : next_monday = next_weekday(datetime.datetime.now(), 0) > retourne la date du prochain lundi
+    exemple : next_monday = next_weekday(datetime.datetime.now(), "Lundi") > retourne la date du prochain lundi
     """
-    days_ahead = weekday_int - d.weekday()
+    days_ahead = weekday_to_int(weekday) - d.weekday()
 
     if days_ahead <= 0: # Target day already happened this week
         days_ahead += 7
     return d + datetime.timedelta(days_ahead)
 
 def day_to_use (weekday, time):
-    d = datetime.datetime.now()
-    day_to_use = next_weekday(d, weekday_to_int(weekday))
+    """
+    >>> day_to_use ("Mardi", "12h05")
+    20151229T120500
+    """
+    day_to_use = next_weekday(datetime.datetime.now(), weekday)
     hour = int(time.split('h')[0])
     minute = int(time.split('h')[1])
     day_to_use = day_to_use.replace(hour = hour, minute = minute, second = 0).strftime("%Y%m%dT%H%M%S")
