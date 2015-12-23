@@ -1,12 +1,15 @@
 {
     "environnements": {
-		"api.navitia.io": {
-			"url" : "http://api.navitia.io/v1/",
-			"key" : "get-your-own-api-key-on-navitia.io"
-		},
-		"mine": {
-			"url" : "localhost/navitia/v1",
-			"key" : ""
-		}
-	}
+  		"api.navitia.io": {
+  			"url" : "http://api.navitia.io/v1/",
+  			"key" : "get-your-own-api-key-on-navitia.io"
+  		},
+  		"mine": {
+  			"url" : "localhost/navitia/v1",
+  			"key" : ""
+  		}
+	},
+  "navitia-checker" : {
+    "private_features_repo": "../relative/path/to/my/private/features/folder/from/root/of/navitia-checker/folder"
+  }
 }

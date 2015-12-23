@@ -2,4 +2,3 @@
 /private_features
 steps/__pycache__/
 steps/params.json
-steps/params.py

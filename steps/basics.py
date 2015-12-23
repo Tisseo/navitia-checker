@@ -40,15 +40,14 @@ def step_impl(context, test_coverage):
 @given(u'je teste un coverage privé')
 def step_impl(context):
     """
-    Les fichiers features privés sont hébergés dans un autre répertoire et synchronisés avec le répertoire courant.
-    Ce test vérifie qu'ils sont bien synchronisés.
+    Les fichiers features privés sont hébergés dans un autre répertoire et synchronisés (par ailleurs) avec le répertoire courant.
+    Ce test vérifie que les fichiers features sont bien synchronisés.
     """
     destination = os.path.join(os.getcwd(), "private_features")
 
     #récupération de l'adresse du répo privé
-    sys.path.append(os.path.join(os.getcwd(), "steps"))
-    import params as private_data
-    source = private_data.datascript_features_repo
+    params = json.load(open('steps/params.json'))
+    source = params['navitia-checker']['private_features_repo']
 
     nom_fichier_feature = ""
     for an_arg in sys.argv :
