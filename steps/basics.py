@@ -203,6 +203,7 @@ def step_impl(context, expected_sections):
 
 @then(u'on ne doit pas me proposer de solution')
 def step_impl(context):
+    print (context.nav_explo)
     print (context.journey_url) #pour le débug
     #extraction du détail des sections
     journeys = []
@@ -257,6 +258,7 @@ def step_impl(context):
         assert False, "il y a au moins un mode physique non normalisé"
 
 @given(u'je consulte la fiche horaire du parcours "{route_id}" pour le prochain "{weekday}"')
+@when(u'je consulte la fiche horaire du parcours "{route_id}" pour le prochain "{weekday}"')
 def step_impl(context, route_id, weekday):
     datetime = date_lib.day_to_use(weekday, "04h00")
     nav_call =  call_navitia(context.base_url, context.coverage, "routes/{}/route_schedules".format(route_id), context.api_key, {'from_datetime':datetime})
