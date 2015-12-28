@@ -136,6 +136,7 @@ def step_impl(context, line_code, expected_route_name):
     assert (expected_route_name in libelles_parcours)
 
 @given(u'je calcule un itinéraire avec les paramètres suivants ')
+@when(u'je calcule un itinéraire avec les paramètres suivants ')
 def step_impl(context):
     from_text = [row['from'] for row in context.table][0]
     to_text = [row['to'] for row in context.table][0]
@@ -212,6 +213,7 @@ def step_impl(context):
     assert (nb_elem == 0), "Il y a {} résultats d'itinéraire".format(str(nb_elem))
 
 @given(u'je cherche des POIs à "{distance}" m du lieu "{places_query}"')
+@when(u'je cherche des POIs à "{distance}" m du lieu "{places_query}"')
 def step_impl(context, distance, places_query):
     location_call = call_navitia(context.base_url, context.coverage, "places", context.api_key, {'q' : places_query})
     location = location_call.json()['places'][0]['id']
