@@ -140,6 +140,7 @@ def step_impl(context, traveler_profile):
     context.profile = traveler_profile
 
 @given(u'je calcule un itinéraire avec les paramètres suivants ')
+@when(u'je calcule un itinéraire avec les paramètres suivants ')
 def step_impl(context):
     from_text = [row['from'] for row in context.table][0]
     to_text = [row['to'] for row in context.table][0]
@@ -214,6 +215,7 @@ def step_impl(context, expected_sections):
 
 @then(u'on ne doit pas me proposer de solution')
 def step_impl(context):
+    print (context.nav_explo)
     print (context.journey_url) #pour le débug
     #extraction du détail des sections
     journeys = []
@@ -224,6 +226,7 @@ def step_impl(context):
     assert (nb_elem == 0), "Il y a {} résultats d'itinéraire".format(str(nb_elem))
 
 @given(u'je cherche des POIs à "{distance}" m du lieu "{places_query}"')
+@when(u'je cherche des POIs à "{distance}" m du lieu "{places_query}"')
 def step_impl(context, distance, places_query):
     location_call = call_navitia(context.base_url, context.coverage, "places", context.api_key, {'q' : places_query})
     location = location_call.json()['places'][0]['id']
@@ -267,6 +270,7 @@ def step_impl(context):
         assert False, "il y a au moins un mode physique non normalisé"
 
 @given(u'je consulte la fiche horaire du parcours "{route_id}" pour le prochain "{weekday}"')
+@when(u'je consulte la fiche horaire du parcours "{route_id}" pour le prochain "{weekday}"')
 def step_impl(context, route_id, weekday):
     datetime = date_lib.day_to_use(weekday, "04h00")
     nav_call =  call_navitia(context.base_url, context.coverage, "routes/{}/route_schedules".format(route_id), context.api_key, {'from_datetime':datetime})
