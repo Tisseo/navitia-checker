@@ -135,6 +135,10 @@ def step_impl(context, line_code, expected_route_name):
         print('--> ' + a_lib)
     assert (expected_route_name in libelles_parcours)
 
+@given(u'j\'ai le profil voyageur "{traveler_profile}"')
+def step_impl(context, traveler_profile):
+    context.profile = traveler_profile
+
 @given(u'je calcule un itinéraire avec les paramètres suivants ')
 def step_impl(context):
     from_text = [row['from'] for row in context.table][0]
@@ -156,7 +160,13 @@ def step_impl(context):
 
     datetime = date_lib.day_to_use(jour, heure)
 
-    journey_call = call_navitia(context.base_url, context.coverage, "journeys", context.api_key, {'from' : from_places, "to" : to_places, "datetime_represents": datetime_represent, "datetime" : datetime})
+    params = {'from' : from_places, "to" : to_places, "datetime_represents": datetime_represent, "datetime" : datetime}
+
+    #gestion des éventuels profils
+    if "profile" in context :
+        params['traveler_type'] = context.profile
+
+    journey_call = call_navitia(context.base_url, context.coverage, "journeys", context.api_key, params )
     context.journey_result = journey_call.json()
     context.journey_url = journey_call.url
 
@@ -165,6 +175,8 @@ def step_impl(context):
     nav_explo_url += "&to_text={}&to={}".format(to_text, to_places)
     date = "{}/{}/{}".format(datetime[6:8], datetime[4:6],datetime[0:4] )
     nav_explo_url += "&date={}&time={}&datetime_represents={}".format(date, heure, datetime_represent)
+    if "profile" in context :
+        nav_explo_url += "&traveler_type={}".format(context.profile)
     context.nav_explo = nav_explo_url
 
 @then(u'on doit me proposer la suite de sections suivante : "{expected_sections}"')
