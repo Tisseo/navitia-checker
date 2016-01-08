@@ -298,3 +298,13 @@ def step_impl(context, stop_point_id):
             assert False, "l'arrêt indiqué n'est pas présent dans cette grille horaire de parcours"
     else :
         assert False, "pas d'horaires !"
+
+@then(u'on doit me renvoyer au moins la note suivante : "{expected_note}"')
+def step_impl(context, expected_note):
+    print (context.url)
+
+    notes = [elem['value'] for elem in context.route_schedules['notes']]
+    print ('voici la liste des notes retournées :')
+    print (notes)
+
+    assert (expected_note in notes), "la note attendue n'a pas été trouvée dans la liste des notes retournées"
