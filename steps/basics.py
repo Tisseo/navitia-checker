@@ -8,6 +8,17 @@ def call_navitia(environnement, coverage, service, api_key, parameters):
     call = requests.get(environnement + coverage + "/"  + service, headers={'Authorization': api_key}, params = parameters)
     return call
 
+def check_nb_elem(expected_nb, explo_nav_result, is_nb_exact = True):
+    """ compare le nombre de résultats retournés par une API d'exploration avec une référence"""
+    try:
+        nb_elem = int(explo_nav_result['pagination']['total_result'])
+        if is_nb_exact :
+            assert (nb_elem == int(expected_nb)), "Nb d'éléments attendus " +expected_nb+ " - Nb d'éléments obtenus " + str(nb_elem)
+        else: #on s'attend à avoir au moins expected_nb d'élements
+            assert (nb_elem >= int(expected_nb)), "Nb d'éléments attendus " +expected_nb+ " - Nb d'éléments obtenus " + str(nb_elem)
+    except KeyError:
+        assert (False), "Pas d'éléments"
+
 @given(u'je teste le coverage "{test_coverage}"')
 def step_impl(context, test_coverage):
     context.coverage = test_coverage
@@ -80,11 +91,12 @@ def step_impl(context):
 @then(u'on doit m\'indiquer un total de "{expected_nb_elem}" éléments')
 def step_impl(context, expected_nb_elem):
     print("L'URL d'appel est : " + context.url)
-    try:
-        nb_elem = int(context.explo_result['pagination']['total_result'])
-        assert (nb_elem == int(expected_nb_elem)), "Nb d'éléments attendus " +expected_nb_elem+ " - Nb d'éléments obtenus " + str(nb_elem)
-    except KeyError:
-        assert (False), "Pas d'éléments associés"
+    check_nb_elem(expected_nb_elem, context.explo_result, is_nb_exact=True)
+
+@then(u'on doit m\'indiquer un total d\'au moins "{expected_nb_elem}" éléments')
+def step_impl(context,expected_nb_elem):
+    print("L'URL d'appel est : " + context.url)
+    check_nb_elem(expected_nb_elem, context.explo_result, is_nb_exact=False)
 
 @when(u'je demande les réseaux')
 def step_impl(context):
@@ -112,7 +124,7 @@ def step_impl(context, not_expected_text_result):
 def step_impl(context, network_id):
     nav_call =  call_navitia(context.base_url, context.coverage, "networks/{}/lines".format(network_id), context.api_key, {})
     context.explo_result = nav_call.json()
-    context.lines = nav_call.json()['lines']    
+    context.lines = nav_call.json()['lines']
     context.url = nav_call.url
 
 @when(u'je demande les zones d\'arrêts du réseau "{network_id}"')
@@ -247,7 +259,7 @@ def step_impl(context, poi_type_name):
 @when(u'je demande les modes physiques')
 def step_impl(context):
     nav_call =  call_navitia(context.base_url, context.coverage, "physical_modes", context.api_key, {'count':50})
-    context.physical_modes = nav_call.json()
+    context.explo_result = nav_call.json()
     context.url = nav_call.url
     context.nav_explo = "navitia-explorer/ptref.html?ws_name={}&coverage={}&uri=%2Fphysical_modes%2F".format(context.env ,context.coverage)
 
@@ -258,7 +270,7 @@ def step_impl(context):
         "physical_mode:LocalTrain", "physical_mode:LongDistanceTrain", "physical_mode:Metro", "physical_mode:RapidTransit", "physical_mode:Shuttle",  "physical_mode:Taxi", "physical_mode:Train",
         "physical_mode:Tramway", "physical_mode:Bike", "physical_mode:BikeSharingService", "physical_mode:CheckOut", "physical_mode:CheckIn", "physical_mode:Car",
         "physical_mode:default_physical_mode", "physical_mode:Other" ]
-    modes = [elem['id'] for elem in context.physical_modes['physical_modes']]
+    modes = [elem['id'] for elem in context.explo_result['physical_modes']]
     pb_de_mode = False
     for a_mode in modes :
         if a_mode not in expected_physical_modes :
