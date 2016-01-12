@@ -321,3 +321,9 @@ def step_impl(context, expected_note):
     print (notes)
 
     assert (expected_note in notes), "la note attendue n'a pas été trouvée dans la liste des notes retournées"
+
+@when(u'je demande les POIs de type "{poi_type}"')
+def step_impl(context, poi_type):
+    nav_call =  call_navitia(context.base_url, context.coverage, "poi_types/{}/pois".format(poi_type), context.api_key, {})
+    context.explo_result = nav_call.json()
+    context.url = nav_call.url
