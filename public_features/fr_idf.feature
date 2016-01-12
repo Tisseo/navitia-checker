@@ -31,6 +31,10 @@ Scenario: Calcul d'itinéraire (OPTILE inside)
         | rue Louise Chenu Boissy Saint Léger  | Porte de Charenton  | Partir après      | Mardi | 08h30 |
     Then on doit me proposer la suite de sections suivante : "Boissy RER (Boissy-Saint-Léger) ==[ Bus 23 - Plateau de Brie ]==> Pointe du Lac (Créteil) ==[ Metro 8 - METRO ]==> Porte de Charenton (Paris) "
 
+Scenario: Volumétrie des POIs
+    When  je demande les POIs de type "poi_type:amenity:townhall"
+    Then on doit m'indiquer un total d'au moins "900" éléments
+
 Scenario: Ligne en fourche - note indiquant un terminus secondaire
     When je consulte la fiche horaire du parcours "route:OIF:100110013:13" pour le prochain "Vendredi"
     Then on doit me renvoyer au moins la note suivante : "Asnieres Gennevilliers Les Courtilles"
