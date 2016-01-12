@@ -81,7 +81,7 @@ def step_impl(context):
 def step_impl(context, expected_nb_elem):
     print("L'URL d'appel est : " + context.url)
     try:
-        nb_elem = int(context.lines['pagination']['total_result'])
+        nb_elem = int(context.explo_result['pagination']['total_result'])
         assert (nb_elem == int(expected_nb_elem)), "Nb d'éléments attendus " +expected_nb_elem+ " - Nb d'éléments obtenus " + str(nb_elem)
     except KeyError:
         assert (False), "Pas d'éléments associés"
@@ -89,7 +89,7 @@ def step_impl(context, expected_nb_elem):
 @when(u'je demande les réseaux')
 def step_impl(context):
     nav_call =  call_navitia(context.base_url, context.coverage, "networks", context.api_key, {})
-    context.lines = nav_call.json()
+    context.explo_result = nav_call.json()
     context.url = nav_call.url
 
 @when(u'je cherche le lieu "{places_query}"')
@@ -111,23 +111,24 @@ def step_impl(context, not_expected_text_result):
 @when(u'je demande les lignes du réseau "{network_id}"')
 def step_impl(context, network_id):
     nav_call =  call_navitia(context.base_url, context.coverage, "networks/{}/lines".format(network_id), context.api_key, {})
-    context.lines = nav_call.json()
+    context.explo_result = nav_call.json()
+    context.lines = nav_call.json()['lines']    
     context.url = nav_call.url
 
 @when(u'je demande les zones d\'arrêts du réseau "{network_id}"')
 def step_impl(context, network_id):
     nav_call =  call_navitia(context.base_url, context.coverage, "networks/{}/stop_areas".format(network_id), context.api_key, {})
-    context.lines = nav_call.json()
+    context.explo_result = nav_call.json()
     context.url = nav_call.url
 
 @then(u'la ligne de code "{expected_line_code}" doit remonter en position "{position}"')
 def step_impl(context, expected_line_code, position):
-    ma_ligne = context.lines["lines"][int(position)-1]
+    ma_ligne = context.lines[int(position)-1]
     assert (ma_ligne["code"] == expected_line_code), "Code de la ligne attendue : {} - Code de la ligne obtenu : {}".format(expected_line_code, ma_ligne['code'])
 
 @then(u'la ligne de code "{line_code}" doit avoir un parcours de nom "{expected_route_name}"')
 def step_impl(context, line_code, expected_route_name):
-    ligne = [une_ligne for une_ligne in context.lines['lines'] if une_ligne['code']== line_code][0]
+    ligne = [une_ligne for une_ligne in context.lines if une_ligne['code']== line_code][0]
     libelles_parcours = [route['name'] for route in ligne["routes"]]
     print('parcours attendu : ' + expected_route_name)
     print ('parcours trouvés :')
