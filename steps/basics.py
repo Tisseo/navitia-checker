@@ -104,6 +104,12 @@ def step_impl(context):
     context.explo_result = nav_call.json()
     context.url = nav_call.url
 
+@when(u'je demande les calendriers')
+def step_impl(context):
+    nav_call =  call_navitia(context.base_url, context.coverage, "calendars", context.api_key, {})
+    context.explo_result = nav_call.json()
+    context.url = nav_call.url
+
 @when(u'je cherche le lieu "{places_query}"')
 def step_impl(context, places_query):
     nav_call =  call_navitia(context.base_url, context.coverage, "places", context.api_key, {'q': places_query})
@@ -325,5 +331,12 @@ def step_impl(context, expected_note):
 @when(u'je demande les POIs de type "{poi_type}"')
 def step_impl(context, poi_type):
     nav_call =  call_navitia(context.base_url, context.coverage, "poi_types/{}/pois".format(poi_type), context.api_key, {})
+    context.explo_result = nav_call.json()
+    context.url = nav_call.url
+
+@when(u'je consulte la fiche horaire de l\'arrêt "{stop_point_id}" pour la ligne "{line_id}" et le calendrier "{calendar_id}"')
+def step_impl(context, stop_point_id, line_id, calendar_id):
+    params = {"calendar" : calendar_id, "show_code": True}
+    nav_call =  call_navitia(context.base_url, context.coverage, "lines/{}/stop_points/{}/stop_schedules".format(line_id, stop_point_id), context.api_key, params)
     context.explo_result = nav_call.json()
     context.url = nav_call.url
