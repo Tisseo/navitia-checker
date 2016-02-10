@@ -296,9 +296,9 @@ def step_impl(context, route_id, weekday):
 @then(u'on doit m\'indiquer que les horaires de l\'arrêt "{stop_point_id}" sont parfois estimés')
 def step_impl(context, stop_point_id):
     print("L'URL d'appel est : " + context.url)
-    if "route_schedules" in context.route_schedules :
+    if "route_schedules" in context.explo_result :
         found_stop_point = False
-        for a_row in context.route_schedules['route_schedules'][0]['table']['rows'] :
+        for a_row in context.explo_result['route_schedules'][0]['table']['rows'] :
             arret_id = a_row['stop_point']['id']
             print(arret_id)
             if arret_id == stop_point_id :
