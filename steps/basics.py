@@ -290,7 +290,7 @@ def step_impl(context):
 def step_impl(context, route_id, weekday):
     datetime = date_lib.day_to_use(weekday, "04h00")
     nav_call =  call_navitia(context.base_url, context.coverage, "routes/{}/route_schedules".format(route_id), context.api_key, {'from_datetime':datetime})
-    context.route_schedules = nav_call.json()
+    context.explo_result = nav_call.json()
     context.url = nav_call.url
 
 @then(u'on doit m\'indiquer que les horaires de l\'arrêt "{stop_point_id}" sont parfois estimés')
@@ -321,8 +321,10 @@ def step_impl(context, stop_point_id):
 @then(u'on doit me renvoyer au moins la note suivante : "{expected_note}"')
 def step_impl(context, expected_note):
     print (context.url)
-
-    notes = [elem['value'] for elem in context.route_schedules['notes']]
+    if 'route_schedules' or 'stop_schedules' in context.explo_result :
+        notes = [elem['value'] for elem in context.explo_result['notes']]
+    else :
+        assert False, "ce test ne permet de vérifier que les notes sur les fiches horaires"
     print ('voici la liste des notes retournées :')
     print (notes)
 
