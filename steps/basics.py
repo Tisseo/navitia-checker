@@ -198,6 +198,16 @@ def step_impl(context):
         nav_explo_url += "&traveler_type={}".format(context.profile)
     context.nav_explo = nav_explo_url
 
+@then(u'La première section doit être piétonne et ne doit pas faire plus de : "{length}" mètres')
+def step_impl(context, length):
+    print (context.journey_url) #pour le débug
+    for a_journey in context.journey_result['journeys']:
+        assert(a_journey['sections'][0]['type'] == "street_network"), "Le début du trajet n'est pas piéton"
+        length_sum = 0
+        for path_section in a_journey['sections'][0]['path']:
+            length_sum += path_section['length']
+        assert(length_sum <= int(length)), "Le trajet piéton fait " + str(length_sum) + " mètres ce qui dépasse la limite de " + length + " mètres"
+
 @then(u'on doit me proposer la suite de sections suivante : "{expected_sections}"')
 def step_impl(context, expected_sections):
     print (context.journey_url) #pour le débug
