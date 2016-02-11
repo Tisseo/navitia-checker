@@ -208,6 +208,16 @@ def step_impl(context, length):
             length_sum += path_section['length']
         assert(length_sum <= int(length)), "Le trajet piéton fait " + str(length_sum) + " mètres ce qui dépasse la limite de " + length + " mètres"
 
+@then(u'Le premier arrêt doit être "{stop_name}"')
+def step_impl(context, stop_name):
+    print (context.journey_url) #pour le débug
+    for a_journey in context.journey_result['journeys']:
+        for a_section in a_journey['sections']:
+            if a_section['type'] == "public_transport" or a_section['type'] == "on_demand_transport":
+                assert(a_section['from']['embedded_type'] == 'stop_point'), "Le départ de la première section TC n'est pas un stop_point c'est " + a_section['from']['embedded_type']
+                assert(a_section['from']['name'] == stop_name), "Le nom du premier arrêt n'est pas {} mais est {}".format(stop_name, a_section['from']['name']) 
+
+
 @then(u'on doit me proposer la suite de sections suivante : "{expected_sections}"')
 def step_impl(context, expected_sections):
     print (context.journey_url) #pour le débug
