@@ -212,15 +212,15 @@ def step_impl(context, length):
 def step_impl(context, stop_name):
     print (context.journey_url) #pour le débug
     for a_journey in context.journey_result['journeys']:
-	    no_public_transport = True
+        no_public_transport = True
         for a_section in a_journey['sections']:
             if a_section['type'] == "public_transport" or a_section['type'] == "on_demand_transport":
                 assert(a_section['from']['embedded_type'] == 'stop_point'), "Le départ de la première section TC n'est pas un stop_point c'est " + a_section['from']['embedded_type']
                 assert(a_section['from']['name'] == stop_name), "Le nom du premier arrêt n'est pas {} mais est {}".format(stop_name, a_section['from']['name'])
-				no_public_transport = False
-				break
-		if no_public_transport:
-		    assert(False), "Un itinéraire ne comporte aucune section TC"
+                no_public_transport = False
+                break
+        if no_public_transport:
+            assert(False), "Un itinéraire ne comporte aucune section TC"
 
 
 @then(u'on doit me proposer la suite de sections suivante : "{expected_sections}"')
